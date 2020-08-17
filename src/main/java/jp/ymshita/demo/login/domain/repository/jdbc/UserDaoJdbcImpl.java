@@ -1,5 +1,6 @@
 package jp.ymshita.demo.login.domain.repository.jdbc;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import jp.ymshita.demo.login.domain.model.User;
+import jp.ymshita.demo.login.domain.model.User2;
 import jp.ymshita.demo.login.domain.repository.UserDao;
 
 @Repository("UserDaoJdbcImpl")
@@ -33,16 +35,61 @@ public class UserDaoJdbcImpl implements UserDao {
 
 	@Override
 	public int insertOne(User user) throws DataAccessException {
+//		String encryptedPassword = passwordEncoder.encode(user.getPassword());
+//		int rowNumber = jdbc.update(
+//				"INSERT INTO m_user(user_id, password, user_name, birthday, age, marriage, role) VALUES(?, ?, ?, ?, ?, ?, ?) ",
+//				user.getUserId(),
+//				encryptedPassword,
+//				user.getUserName(),
+//				user.getBirthday(),
+//				user.getAge(),
+//				user.isMarriage(),
+//				user.getRole());
+
+		return insertOne2(user);
+	}
+	
+	public int insertOne2(User user) throws DataAccessException {
 		String encryptedPassword = passwordEncoder.encode(user.getPassword());
+		
+		User2 user2 = new User2();
+		user2.setUserId(user.getUserId());
+		user2.setPassword(encryptedPassword);
+		Timestamp timestamp = new Timestamp(user.getBirthday().getTime());
+		user2.setPasswordUpdateDate(timestamp);
+		user2.setLoginMissTimes(user.getAge());
+		user2.setUnlock(true);
+		user2.setTenantId("tenant");
+		user2.setUserName(user.getUserName());
+		user2.setMailAddress(user.getUserId());
+		user2.setEnabled(true);
+		user2.setUserDueDate(timestamp);
+		
+		String sql = "INSERT INTO m_user("
+				+ "user_id, "
+				+ "password,"
+				+ " pass_update_date, "
+				+ "login_miss_times, "
+				+ "unlock, "
+				+ "tenant_id, "
+				+ "user_name, "
+				+ "mail_address, "
+				+ "enabled, "
+				+ "user_due_date) "
+				+ "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		
 		int rowNumber = jdbc.update(
-				"INSERT INTO m_user(user_id, password, user_name, birthday, age, marriage, role) VALUES(?, ?, ?, ?, ?, ?, ?) ",
-				user.getUserId(),
+				sql,
+				user2.getUserId(),
 				encryptedPassword,
-				user.getUserName(),
-				user.getBirthday(),
-				user.getAge(),
-				user.isMarriage(),
-				user.getRole());
+				user2.getPasswordUpdateDate(),
+				user2.getLoginMissTimes(),
+				user2.isUnlock(),
+				user2.getTenantId(),
+				user2.getUserName(),
+				user2.getMailAddress(),
+				user2.isEnabled(),
+				user2.getUserDueDate());
 
 		return rowNumber;
 	}

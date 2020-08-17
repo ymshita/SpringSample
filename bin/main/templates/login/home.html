@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
 <head>
 <meta charset="UTF-8">
 </head>
@@ -8,6 +9,8 @@
 <div th:fragment="home_contents">
 	<div class="page-header">
 		<h1>Home</h1>
+		<p>ユーザID: <span sec:authentication="name"></span></p>
+		<p>ロール: <span sec:authentication="principal.authorities"></span></p>
 	</div>
 </div>
 </body>
