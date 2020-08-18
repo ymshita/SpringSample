@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import jp.ymshita.demo.login.domain.model.AppUserDetails;
 import jp.ymshita.demo.login.domain.model.SignupForm;
 import jp.ymshita.demo.login.domain.model.User;
 import jp.ymshita.demo.login.service.UserService;
@@ -42,7 +43,7 @@ public class HomeController {
 
 	@GetMapping("/home")
 	public String getHome(Model model,
-			@AuthenticationPrincipal org.springframework.security.core.userdetails.User user) {
+			@AuthenticationPrincipal AppUserDetails user) {
 		log.info("HomeController Start");
 		log.info("user: " +user.toString());
 		log.info("HomeController End");
@@ -53,10 +54,10 @@ public class HomeController {
 	@GetMapping("/home2")
 	public String getHome2(Model model, Principal principal) {
 		Authentication authentication = (Authentication) principal;
-		org.springframework.security.core.userdetails.User user1 = (org.springframework.security.core.userdetails.User) authentication.getPrincipal();
+		AppUserDetails user1 = (AppUserDetails) authentication.getPrincipal();
 		
 		log.info("user1: " + user1.toString());
-		org.springframework.security.core.userdetails.User user2 = (org.springframework.security.core.userdetails.User) SecurityContextHolder
+		AppUserDetails user2 = (AppUserDetails) SecurityContextHolder
 				.getContext().getAuthentication().getPrincipal();
 		log.info("user2: " + user2.toString());
 

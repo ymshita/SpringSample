@@ -3,6 +3,7 @@ package jp.ymshita.demo;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -19,6 +21,10 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+	@Autowired
+	@Qualifier("UserDetailsServiceImpl")
+	private UserDetailsService userDetailsService;
+	
 	@Bean // define Bean of PasswordEncoder
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
@@ -72,10 +78,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.jdbcAuthentication() // Specify JdbcUserDetailsManager as the implementation of UserDetailSservice
-				.dataSource(dataSource)
-				.usersByUsernameQuery(USER_SQL)
-				.authoritiesByUsernameQuery(ROLE_SQL)
-				.passwordEncoder(passwordEncoder());
+//		auth.jdbcAuthentication() // Specify JdbcUserDetailsManager as the implementation of UserDetailSservice
+//				.dataSource(dataSource)
+//				.usersByUsernameQuery(USER_SQL)
+//				.authoritiesByUsernameQuery(ROLE_SQL)
+//				.passwordEncoder(passwordEncoder());
+		
+		auth.userDetailsService(userDetailsService)
+		.passwordEncoder(passwordEncoder());
 	}
 }
