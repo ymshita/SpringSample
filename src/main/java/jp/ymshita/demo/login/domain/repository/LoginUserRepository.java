@@ -27,7 +27,15 @@ public class LoginUserRepository {
 			+ "INNER JOIN m_role AS role "
 			+ "ON user_role.role_id=role.role_id "
 			+ "WHERE m_user.user_id=?";
-	
+
+	/** パスワードと期限を更新するSQL **/
+	private static final String UPDATE_PASSWORD_SQL = "UPDATE m_user SET password = ?, pass_update_date = ? WHERE user_id = ?";
+
+	/**
+	 * ユーザー情報を取得してUserDetailsを生成
+	 * @param userId
+	 * @return
+	 */
 	public UserDetails selectOne(String userId) {
 		Map<String, Object> userMap = jdbc.queryForMap(SELECT_USER_SQL, userId);
 		List<GrantedAuthority> grantedAuthorityList = getRoleList(userId);
@@ -35,7 +43,12 @@ public class LoginUserRepository {
 		AppUserDetails user = buildUserDetails(userMap, grantedAuthorityList);
 		return user;
 	}
-	
+
+	/**
+	 * 権限リストを取得する
+	 * @param userId
+	 * @return
+	 */
 	private List<GrantedAuthority> getRoleList(String userId){
 		List<Map<String, Object>> authorityList = jdbc.queryForList(SELECT_USER_ROLE_SQL, userId);
 		List<GrantedAuthority> grantedAuthorityList = new ArrayList<>();
@@ -47,7 +60,13 @@ public class LoginUserRepository {
 		}
 		return grantedAuthorityList;
 	}
-	
+
+	/**
+	 * ユーザークラスを作成
+	 * @param userMap
+	 * @param grantedAuthorityList
+	 * @return
+	 */
 	private AppUserDetails buildUserDetails(Map<String, Object> userMap, List<GrantedAuthority> grantedAuthorityList) {
 		String userId = (String) userMap.get("user_id");
 		String password = (String) userMap.get("password");
@@ -74,5 +93,17 @@ public class LoginUserRepository {
 				.authority(grantedAuthorityList).build();
 		
 		return user;
+	}
+
+	/**
+	 * パスワードと期限を更新
+	 * @param userId
+	 * @param password
+	 * @param passwordUpdateDate
+	 * @return 更新した行数
+	 */
+	public int updatePassword(String userId, String password, Date passwordUpdateDate){
+		int result = jdbc.update(UPDATE_PASSWORD_SQL, password, passwordUpdateDate, userId);
+		return result;
 	}
 }
