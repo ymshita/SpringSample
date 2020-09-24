@@ -14,12 +14,17 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Autowired
+	@Qualifier("SuccessHandler")
+	private AuthenticationSuccessHandler successHandler;
 
 	@Autowired
 	@Qualifier("UserDetailsServiceImpl")
@@ -65,7 +70,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.failureUrl("/login?error")
 				.usernameParameter("userId") // input element's name attribute
 				.passwordParameter("password") // input element's name attribute
-				.defaultSuccessUrl("/home", true);
+				.defaultSuccessUrl("/home", true)
+				.successHandler(successHandler);
 
 		http.logout()
 				.logoutRequestMatcher(new AntPathRequestMatcher("/logout")) // for GET request
